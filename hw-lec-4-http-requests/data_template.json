@@ -1,0 +1,29 @@
+{
+    "action": "facetwp_refresh",
+    "data": {
+        "facets": {
+            "recherche": [],
+            "ou": [],
+            "type_de_contrat": [],
+            "fonction": [],
+            "load_more": []
+        },
+        "frozen_facets": {
+            "ou": "hard"
+        },
+        "http_params": {
+            "get": [],
+            "uri": "emplois",
+            "url_vars": []
+        },
+        "template": "wp",
+        "extras": {
+            "counts": true,
+            "sort": "default"
+        },
+        "soft_refresh": 1,
+        "is_bfcache": 1,
+        "first_load": 0,
+        "paged": 0
+    }
+}
