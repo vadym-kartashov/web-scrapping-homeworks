@@ -1,10 +1,13 @@
 import json
+import re
 from pathlib import Path
 from typing import Callable
 
-import lxml.etree as etree
 from sqlalchemy import Column, String, Integer, Text, create_engine
 from sqlalchemy.orm import sessionmaker, declarative_base
+
+JOB_RECORD_REGEX = re.compile(r'<article id="post-(\d+)".*?<a\s+href="([^"]+)"[^>]*class="jobCard_link".*?<h3\s+class="jobCard_title">([^<]+)</h3>', re.DOTALL)
+
 
 class JobRecord:
 
@@ -26,19 +29,15 @@ class JobRecordEncoder(json.JSONEncoder):
 
 def extract_job_records(response: str) -> list[JobRecord]:
     response_body = json.loads(response)
-    job_articles_root = etree.HTML(response_body['template'])
-    job_article_elements = job_articles_root.xpath('//article')
+    text = response_body['template']
+    matches = JOB_RECORD_REGEX.findall(text)
     job_records: list[JobRecord] = []
-    for art in job_article_elements:
-        id_elements = art.xpath('.//div[@data-job-id]')
-        href_elements = art.xpath('.//a[@href]')
-        job_title_elements = art.xpath(".//h3[@class='jobCard_title']")
+    for match in matches:
         job_records.append(JobRecord(
-            id_elements[0].get('data-job-id'),
-            href_elements[0].get('href'),
-            job_title_elements[0].text
+            match[0],
+            match[2],
+            match[1]
         ))
-        # print(etree.tostring(art, pretty_print=True, encoding='utf-8'))
     return job_records
 
 
@@ -70,6 +69,7 @@ def generate_json_database_for_jobs_cache() -> None:
 
 def generate_sqllite_database_for_jobs_cache() -> None:
     Base = declarative_base()
+
     class JobRecordEntity(Base):
         __tablename__ = 'job_records'
 
@@ -100,7 +100,8 @@ def generate_sqllite_database_for_jobs_cache() -> None:
                 job_title=record.job_title,
                 href=record.href
             )
-        job_record_entities :list[JobRecordEntity] = [map_record_to_entity(record) for record in job_records ]
+
+        job_record_entities: list[JobRecordEntity] = [map_record_to_entity(record) for record in job_records]
 
         db_file_path = 'job_records.db'
         db_path = Path(db_file_path)
@@ -125,4 +126,4 @@ def generate_sqllite_database_for_jobs_cache() -> None:
 
 
 if __name__ == '__main__':
-    generate_sqllite_database_for_jobs_cache()
+    generate_json_database_for_jobs_cache()
