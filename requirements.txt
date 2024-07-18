@@ -96,3 +96,10 @@ wxPython==4.2.1
 xmlrpclib==1.0.1
 yapf==0.40.2
 zstandard==0.23.0
+
+Scrapy~=2.11.2
+itemadapter~=0.9.0
+selenium~=4.22.0
+requests~=2.32.3
+beautifulsoup4~=4.12.3
+lxml~=5.2.2
